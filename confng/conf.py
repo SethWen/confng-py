@@ -52,7 +52,9 @@ def _merge_env(obj: Dict[str, Any], options: MergeEnvOptions) -> None:
             _merge_env(
                 value,
                 MergeEnvOptions(
-                    prefix=f"{prefix.upper()}{separator}{key}" if prefix else key,
+                    prefix=f"{prefix.upper()}{separator}{snakecase(key).upper()}"
+                    if prefix
+                    else snakecase(key).upper(),
                     separator=separator,
                 ),
             )
@@ -63,9 +65,9 @@ def _merge_env(obj: Dict[str, Any], options: MergeEnvOptions) -> None:
                     _merge_env(
                         item,
                         MergeEnvOptions(
-                            prefix=f"{prefix.upper()}{separator}{key}{separator}{index}"
+                            prefix=f"{prefix.upper()}{separator}{snakecase(key).upper()}{separator}{index}"
                             if prefix
-                            else f"{key}{separator}{index}",
+                            else f"{snakecase(key).upper()}{separator}{index}",
                             separator=separator,
                         ),
                     )
@@ -163,6 +165,9 @@ class Conf:
                 return False
 
         return True
+
+    def __str__(self):
+        return json.dumps(self._conf)
 
     def display(self) -> None:
         print(json.dumps(self._conf, indent=2))
