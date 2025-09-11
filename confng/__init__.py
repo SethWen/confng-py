@@ -3,4 +3,4 @@ from .conf import Conf, MergeEnvOptions, ConfOptions
 __all__ = ["Conf", "MergeEnvOptions", "ConfOptions"]
 
 
-__version__ = "0.2.1"
+__version__ = "0.2.2"

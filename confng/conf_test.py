@@ -12,8 +12,10 @@ class TestConf:
     def test_env_variables_with_double_underscore_separator(self):
         self.monkeypatch.setenv("MOCK__SERVER__PORT", "6666")
         self.monkeypatch.setenv("MOCK__SERVER__BASE_PATH", "/mockpath")
+        self.monkeypatch.setenv("MOCK__SERVER__FOO_BAR", "mockbaz")
         self.monkeypatch.setenv("MOCK__LOGS__0__LEVEL", "custom")
         self.monkeypatch.setenv("MOCK__NUMS__0", "8")
+        self.monkeypatch.setenv("MOCK__MY_NAME", "confngfromenv")
 
         conf = Conf(
             ConfOptions(
@@ -22,6 +24,7 @@ class TestConf:
                     "server": {
                         "port": 8080,
                         "base_path": "/api",
+                        "fooBar": "baz",
                     },
                     "logs": [
                         {
@@ -30,19 +33,25 @@ class TestConf:
                         },
                     ],
                     "nums": [1, 2, 3],
+                    "myName": "confng",
+                    "myAge": 9
                 },
                 merge_env_options=MergeEnvOptions(prefix="MOCK", separator="__"),
             )
         )
+        print(str(conf))
 
         assert conf.get("name") == "mock"
         assert conf.get("server.port") == 6666
         assert conf.get("server.base_path") == "/mockpath"
-        assert conf.get("server") == {"port": 6666, "base_path": "/mockpath"}
+        assert conf.get("server.fooBar") == "mockbaz"
+        assert conf.get("server") == {"port": 6666, "base_path": "/mockpath", "fooBar": "mockbaz"}
         assert conf.get("logs.0.level") == "custom"
         assert conf.get("logs.0") == {"level": "custom", "output": "console"}
         assert conf.get("nums.0") == 8
         assert conf.get("nums.1") == 2
+        assert conf.get("myName") == 'confngfromenv'
+        assert conf.get("myAge") == 9
 
     def test_env_variables_with_double_colon_separator(self):
         self.monkeypatch.setenv("MOCK::SERVER::PORT", "6666")
@@ -129,7 +138,6 @@ class TestConf:
         assert conf.get("notexist") is None
         assert conf.get("not.exist") is None
 
-
     def test_return_true_if_key_exists_or_not_if_not_exist(self):
         conf = Conf(
             ConfOptions(
@@ -159,4 +167,3 @@ class TestConf:
         assert conf.has("nums.1") is True
         assert conf.has("notexist") is False
         assert conf.has("not.exist") is False
-
